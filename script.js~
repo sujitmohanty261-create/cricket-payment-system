@@ -1,0 +1,166 @@
+let members = JSON.parse(localStorage.getItem("membersList")) || [];
+let monthData = JSON.parse(localStorage.getItem("monthData")) || {};
+let currentMonth = localStorage.getItem("currentMonth") || "Jan";
+
+const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+function setMonth(e, month) {
+  currentMonth = month;
+  localStorage.setItem("currentMonth", month);
+
+  document.querySelectorAll(".tabs button").forEach(btn => btn.classList.remove("active"));
+  e.target.classList.add("active");
+
+  renderTable();
+}
+
+// MODAL
+function openModal() {
+  document.getElementById("modal").style.display = "flex";
+}
+
+function closeModal() {
+  document.getElementById("modal").style.display = "none";
+}
+
+// ADD MEMBER
+function saveMember() {
+  let name = document.getElementById("nameInput").value.trim();
+  let amount = document.getElementById("amountInput").value.trim();
+
+  if (!name || !amount) {
+    alert("Enter all details");
+    return;
+  }
+
+  members.push({ name, amount: Number(amount) });
+  localStorage.setItem("membersList", JSON.stringify(members));
+
+  document.getElementById("nameInput").value = "";
+  document.getElementById("amountInput").value = "";
+
+  closeModal();
+  renderTable();
+}
+
+// MONTH DATA
+function getMemberMonth(index) {
+  if (!monthData[currentMonth]) monthData[currentMonth] = [];
+
+  if (!monthData[currentMonth][index]) {
+    monthData[currentMonth][index] = {
+      paid: false,
+      attendance: [0,0,0,0]
+    };
+  }
+
+  return monthData[currentMonth][index];
+}
+
+// CALCULATE STATS
+function calculateStats() {
+  let total = 0, paid = 0;
+
+  members.forEach((m, i) => {
+    total += m.amount;
+    if (getMemberMonth(i).paid) paid += m.amount;
+  });
+
+  let balance = total - paid;
+
+  let lastIndex = months.indexOf(currentMonth) - 1;
+  if (lastIndex < 0) lastIndex = 11;
+  let lastMonth = months[lastIndex];
+
+  let lastTotal = 0;
+
+  if (monthData[lastMonth]) {
+    members.forEach((m, i) => {
+      let data = monthData[lastMonth][i];
+      if (data && data.paid) lastTotal += m.amount;
+    });
+  }
+
+  document.getElementById("total").innerText = total;
+  document.getElementById("paid").innerText = paid;
+  document.getElementById("balance").innerText = balance;
+
+  document.getElementById("lastTotal").innerText = lastTotal;
+  document.getElementById("currentPaid").innerText = paid;
+  document.getElementById("currentBalance").innerText = balance;
+}
+
+// TABLE
+function renderTable() {
+  let table = document.getElementById("tableBody");
+  table.innerHTML = "";
+
+  members.forEach((m, i) => {
+    let data = getMemberMonth(i);
+
+    let attHTML = "";
+    data.attendance.forEach((a, d) => {
+      let cls = a === 1 ? "att-present" : a === -1 ? "att-absent" : "";
+      attHTML += `<div class="att-box ${cls}" onclick="toggleAttendance(${i},${d})"></div>`;
+    });
+
+    table.innerHTML += `
+      <tr>
+        <td>${i+1}</td>
+        <td class="name-cell">${m.name}</td>
+        <td>₹${m.amount}</td>
+        <td><button onclick="togglePaid(${i})">${data.paid ? "Paid":"Unpaid"}</button></td>
+        <td>${attHTML}</td>
+        <td><button onclick="deleteMember(${i})">Delete</button></td>
+      </tr>
+    `;
+  });
+
+  calculateStats();
+}
+
+// ACTIONS
+function togglePaid(i) {
+  let m = getMemberMonth(i);
+  m.paid = !m.paid;
+
+  localStorage.setItem("monthData", JSON.stringify(monthData));
+  renderTable();
+}
+
+function toggleAttendance(i, d) {
+  let m = getMemberMonth(i);
+  let val = m.attendance[d];
+  m.attendance[d] = val === 1 ? -1 : val === -1 ? 0 : 1;
+
+  localStorage.setItem("monthData", JSON.stringify(monthData));
+  renderTable();
+}
+
+function deleteMember(i) {
+  members.splice(i, 1);
+
+  Object.keys(monthData).forEach(m => {
+    if (monthData[m]) monthData[m].splice(i, 1);
+  });
+
+  localStorage.setItem("membersList", JSON.stringify(members));
+  localStorage.setItem("monthData", JSON.stringify(monthData));
+
+  renderTable();
+}
+
+function filterTable() {
+  let val = document.getElementById("search").value.toLowerCase();
+  document.querySelectorAll("#tableBody tr").forEach(r => {
+    r.style.display = r.children[1].innerText.toLowerCase().includes(val) ? "" : "none";
+  });
+}
+
+// CLOSE MODAL OUTSIDE
+window.addEventListener("click", function(e) {
+  let modal = document.getElementById("modal");
+  if (e.target === modal) closeModal();
+});
+
+window.onload = renderTable;

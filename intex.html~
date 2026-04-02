@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Odia Cricket Association Ulwe</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="container">
+
+  <h1>🏏 Odia Cricket Association Ulwe</h1>
+
+  <!-- MONTH TABS -->
+  <div class="tabs">
+    <button onclick="setMonth(event,'Jan')" class="active">Jan</button>
+    <button onclick="setMonth(event,'Feb')">Feb</button>
+    <button onclick="setMonth(event,'Mar')">Mar</button>
+    <button onclick="setMonth(event,'Apr')">Apr</button>
+    <button onclick="setMonth(event,'May')">May</button>
+    <button onclick="setMonth(event,'Jun')">Jun</button>
+    <button onclick="setMonth(event,'Jul')">Jul</button>
+    <button onclick="setMonth(event,'Aug')">Aug</button>
+    <button onclick="setMonth(event,'Sep')">Sep</button>
+    <button onclick="setMonth(event,'Oct')">Oct</button>
+    <button onclick="setMonth(event,'Nov')">Nov</button>
+    <button onclick="setMonth(event,'Dec')">Dec</button>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="cards">
+    <div class="card">Total ₹<span id="total">0</span></div>
+    <div class="card paid">Paid ₹<span id="paid">0</span></div>
+    <div class="card balance">Pending ₹<span id="balance">0</span></div>
+
+    <!-- NEW -->
+    <div class="card">Last Month ₹<span id="lastTotal">0</span></div>
+    <div class="card paid">Paid This Month ₹<span id="currentPaid">0</span></div>
+    <div class="card balance">Balance ₹<span id="currentBalance">0</span></div>
+  </div>
+
+  <!-- CONTROLS -->
+  <div class="controls">
+    <div class="search-box">
+      <label>🔍 Search:</label>
+      <input type="text" id="search" onkeyup="filterTable()">
+    </div>
+
+    <button onclick="openModal()">+ Add Member</button>
+  </div>
+
+  <!-- TABLE -->
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Name</th>
+          <th>Amount</th>
+          <th>Status</th>
+          <th>Attendance</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+
+</div>
+
+<!-- MODAL -->
+<div id="modal" class="modal">
+  <div class="modal-content">
+    <h2>Add Member</h2>
+
+    <input type="text" id="nameInput" placeholder="Enter Name">
+    <input type="number" id="amountInput" placeholder="Enter Amount">
+
+    <div class="modal-buttons">
+      <button onclick="saveMember()">Save</button>
+      <button onclick="closeModal()" class="cancel">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>
